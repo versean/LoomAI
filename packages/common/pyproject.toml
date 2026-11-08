@@ -1,0 +1,10 @@
+[project]
+name = "loom-common"
+version = "0.1.0"
+description = "Shared code for Loom AI server and CLI"
+requires-python = ">=3.12"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
