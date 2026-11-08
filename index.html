@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loom AI</title>
+<link rel="icon" type="image/png" href="assets/favicon.png?v=4">
+<meta name="description" content="Loom AI is a shared brain and secure gateway for your AI coding agents. Every session starts with the project's context, and every tool call is checked before it runs.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#08090a">
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090a;
+  --s1: #0f1012;
+  --s2: #151619;
+  --s3: #1c1d21;
+  --line: #1c1d21;
+  --line-2: #26272c;
+  --line-3: #34353b;
+
+  --text: #f7f8f8;
+  --text-2: #b4b6bc;
+  --text-3: #8a8f98;   /* Linear-style gray, 5.9:1 on bg */
+  --decor: #3e4047;
+
+  --cobalt: #2a45e8;
+  --blue-text: #8ea2ff;
+  --ok: #4ade80;
+  --no: #f87171;
+  --ask: #fbbf24;
+
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --wrap: 1180px;
+  --nav-h: 60px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-block-start: calc(var(--nav-h) + 24px); -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 1rem/1.6 var(--sans); overflow-x: hidden; -webkit-tap-highlight-color: transparent; font-feature-settings: "cv11", "ss01"; }
+::selection { background: var(--cobalt); color: #fff; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+p { margin: 0; text-wrap: pretty; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+code, pre { font-family: var(--mono); }
+:focus-visible { outline: 2px solid var(--blue-text); outline-offset: 3px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; inset-inline-start: 16px; top: -60px; z-index: 100; background: var(--text); color: #000; padding: 8px 14px; border-radius: 8px; font-weight: 500; }
+.skip:focus { top: 12px; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 32px; }
+section { padding: 128px 0; }
+
+.serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em; }
+.h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem); line-height: 1.05; letter-spacing: -0.015em; }
+.sub { color: var(--text-3); font-size: 1.0625rem; line-height: 1.6; max-width: 52ch; }
+.statement { font-size: clamp(1.375rem, 1.05rem + 1.1vw, 2rem); line-height: 1.3; font-weight: 500; letter-spacing: -0.022em; color: var(--text-3); max-width: 34ch; }
+.statement b { color: var(--text); font-weight: 500; }
+.code { font: 400 0.875em var(--mono); background: var(--s3); border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 5px; color: var(--text); white-space: nowrap; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 10px; font: 500 0.9375rem/1 var(--sans); white-space: nowrap; cursor: pointer; border: 1px solid transparent; transition-property: background-color, border-color, color, scale; transition-duration: 150ms; transition-timing-function: ease-out; }
+.btn svg { width: 14px; height: 14px; }
+.btn-light { background: #f7f8f8; color: #08090a; }
+.btn-dark { background: var(--s3); border-color: var(--line-2); color: var(--text); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+.btn-text { color: var(--text-3); padding: 0 8px; }
+@media (hover: hover) {
+  .btn-light:hover { background: #dcdde0; }
+  .btn-dark:hover { background: #24252a; border-color: var(--line-3); }
+  .btn-text:hover { color: var(--text); }
+}
+@media (prefers-reduced-motion: no-preference) { .btn:active { scale: 0.96; } }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 50; height: var(--nav-h); background: rgba(8,9,10,0.8); backdrop-filter: blur(16px) saturate(150%); -webkit-backdrop-filter: blur(16px) saturate(150%); border-block-end: 1px solid transparent; transition: border-color 200ms ease-out; }
+.nav.scrolled { border-block-end-color: var(--line); }
+.nav .wrap { height: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; }
+.logo { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 0.9375rem; letter-spacing: -0.02em; justify-self: start; }
+.logo .mark { width: 26px; height: 26px; display: block; }
+.logo-ai { background: linear-gradient(180deg, #7389ff 0%, #2a45e8 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ws .mark { width: 18px; height: 18px; display: block; }
+.tile .mark { width: 46px; height: 46px; display: block; }
+.final .tile .mark { width: 54px; height: 54px; }
+.nav-links { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; font-size: 0.875rem; }
+.nav-links a { display: block; padding: 6px 12px; border-radius: 8px; color: var(--text-3); transition: color 150ms ease-out; }
+@media (hover: hover) { .nav-links a:hover { color: var(--text); } }
+.nav-end { justify-self: end; display: flex; align-items: center; gap: 6px; }
+.nav-end .btn { min-height: 32px; padding: 0 12px; font-size: 0.875rem; border-radius: 8px; }
+.menu { position: relative; display: none; }
+.menu summary { list-style: none; cursor: pointer; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu summary svg { width: 18px; height: 18px; }
+.menu .x { display: none; }
+.menu[open] .bars { display: none; }
+.menu[open] .x { display: block; }
+.menu-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 8px); width: min(280px, calc(100vw - 32px)); padding: 6px; border-radius: 14px; background: var(--s2); border: 1px solid var(--line-2); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.85); }
+.menu-panel a:not(.btn) { display: block; padding: 12px; border-radius: 9px; color: var(--text-2); }
+.menu-panel a:not(.btn):hover, .menu-panel a:not(.btn):focus-visible { background: var(--s3); color: var(--text); }
+.menu-panel .btn { display: flex; width: 100%; margin-top: 6px; min-height: 44px; }
+
+/* ───────── Hero ───────── */
+.hero { padding: 96px 0 88px; position: relative; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+.announce { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--s2); border: 1px solid var(--line-2); font-size: 0.8125rem; color: var(--text-2); transition: border-color 150ms ease-out; }
+.announce b { flex: none; white-space: nowrap; font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.04em; padding: 4px 7px; border-radius: 999px; background: var(--cobalt); color: #fff; }
+.announce svg { width: 12px; height: 12px; color: var(--text-3); }
+@media (hover: hover) { .announce:hover { border-color: var(--line-3); } }
+.hero h1 { margin-top: 28px; font-family: var(--serif); font-weight: 400; font-size: clamp(3rem, 1.9rem + 3.6vw, 4.75rem); line-height: 1; letter-spacing: -0.02em; }
+.hero .sub { margin-top: 22px; font-size: 1.0625rem; max-width: 42ch; }
+.ctas { display: flex; align-items: center; gap: 10px; margin-top: 32px; flex-wrap: wrap; }
+
+/* Hero shot */
+.shot { position: relative; padding-bottom: 36px; }
+.terminal { position: relative; border-radius: 14px; background: #0b0c0e; border: 1px solid var(--line-2); overflow: hidden; box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 50px 100px -30px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.05); }
+.tbar { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 14px; border-block-end: 1px solid var(--line); font: 400 0.75rem/1 var(--mono); color: var(--text-3); }
+.tbar .dots { display: flex; gap: 6px; }
+.tbar .dots i { display: block; width: 10px; height: 10px; border-radius: 50%; background: #25262b; }
+.tbar .t { flex: 1; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-inline-end: 76px; }
+.tbody { padding: 18px 20px 22px; font: 400 0.8125rem/1.75 var(--mono); min-height: 380px; color: var(--text-2); }
+.ln { white-space: pre-wrap; overflow-wrap: anywhere; }
+.js .ln { opacity: 0; }
+.js .ln.on { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) { .js .ln { transition: opacity 180ms ease-out; } }
+.c3 { color: var(--text-3); }
+.c1 { color: var(--text); }
+.cb { color: var(--blue-text); }
+.cok { color: var(--ok); }
+.cno { color: var(--no); }
+.hm { display: inline-block; padding: 0 6px; border-radius: 4px; background: var(--cobalt); color: #fff; }
+.blk { display: block; margin: 6px 0 6px 16px; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(248,113,113,0.28); background: rgba(248,113,113,0.06); color: #fecaca; }
+.blk b { color: var(--no); font-weight: 500; }
+.pushed { display: block; margin: 6px 0 2px 16px; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(74,222,128,0.24); background: rgba(74,222,128,0.05); color: #bbf7d0; }
+.caret { display: inline-block; width: 7px; height: 14px; background: var(--text-2); vertical-align: -2px; }
+@media (prefers-reduced-motion: no-preference) { .caret.blink { animation: blink 1.1s steps(1) infinite; } }
+@keyframes blink { 50% { opacity: 0; } }
+.replay { position: absolute; top: 7px; right: 10px; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 9px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--s2); color: var(--text-3); font: 500 0.6875rem/1 var(--mono); cursor: pointer; transition: color 150ms ease-out; }
+.replay svg { width: 11px; height: 11px; }
+@media (hover: hover) { .replay:hover { color: var(--text); } }
+
+.toast { position: absolute; left: -28px; bottom: 0; width: 300px; border-radius: 12px; background: rgba(21,22,25,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--line-3); padding: 12px 14px; box-shadow: 0 24px 50px -16px rgba(0,0,0,0.9); font-size: 0.8125rem; }
+.toast .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 500 0.6875rem/1.4 var(--mono); color: var(--text-3); letter-spacing: 0.02em; }
+.toast .row span { display: inline-flex; align-items: center; gap: 7px; }
+.toast .row svg { width: 14px; height: 14px; }
+.toast p { margin-top: 6px; color: var(--text); line-height: 1.45; }
+.toast p small { display: block; color: var(--text-3); font-size: 0.75rem; margin-top: 2px; }
+.js .toast { opacity: 0; transform: translateY(8px); }
+.js .toast.on { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) { .js .toast { transition: opacity 350ms var(--ease), transform 350ms var(--ease); } }
+.toast.t2 { left: auto; right: -20px; bottom: 0; width: 270px; }
+.shot { padding-bottom: 60px; }
+
+.horizon { position: relative; height: 1px; margin-top: 88px; background: linear-gradient(90deg, transparent, var(--line-3) 30%, var(--line-3) 70%, transparent); }
+
+/* Works with */
+.works { padding: 48px 0 0; text-align: center; }
+.works p { font-size: 0.875rem; color: var(--text-3); }
+.works ul { list-style: none; margin: 22px 0 0; padding: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 14px 48px; }
+.works li { display: inline-flex; align-items: center; gap: 10px; font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.02em; color: var(--text-2); }
+.works li svg { width: 20px; height: 20px; color: var(--text-3); }
+
+/* ───────── FIG section (Linear-style) ───────── */
+.figs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); margin-top: 80px; border-block-start: 1px solid var(--line); }
+.fig { padding: 24px 32px 0; }
+.fig + .fig { border-inline-start: 1px solid var(--line); }
+.fig:first-child { padding-inline-start: 0; }
+.fig:last-child { padding-inline-end: 0; }
+.fig .n { font: 400 0.6875rem/1 var(--mono); letter-spacing: 0.08em; color: var(--text-3); }
+.fig svg.art { width: 100%; height: 200px; margin: 28px 0 32px; }
+.fig h3 { font-size: 1rem; font-weight: 500; letter-spacing: -0.01em; }
+.fig p { margin-top: 8px; color: var(--text-3); font-size: 0.9375rem; line-height: 1.55; }
+.art .ln-s { fill: none; stroke: #4a4d55; stroke-width: 1; }
+.art .ln-f { fill: var(--bg); stroke: #4a4d55; stroke-width: 1; }
+.art .ln-hi { fill: none; stroke: #8a8f98; stroke-width: 1; }
+.art .ln-b { fill: none; stroke: var(--blue-text); stroke-width: 1.2; }
+.art .ln-x { fill: none; stroke: var(--no); stroke-width: 1.3; stroke-linecap: round; }
+
+/* ───────── Product (dashboard) ───────── */
+.prod-head { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 32px; align-items: end; }
+.prod { position: relative; margin-top: 64px; }
+.app { border-radius: 16px; background: var(--s1); border: 1px solid var(--line-2); overflow: hidden; display: grid; grid-template-columns: 210px minmax(0,1fr); box-shadow: 0 60px 120px -40px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.04); }
+.side { border-inline-end: 1px solid var(--line); padding: 14px 10px; background: #0c0d0f; }
+.side .ws { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; font-size: 0.8125rem; font-weight: 600; }
+.side .ws svg { width: 18px; height: 18px; }
+.side nav { display: grid; gap: 1px; }
+.side nav span { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 7px; font-size: 0.8125rem; color: var(--text-3); }
+.side nav span i { width: 14px; height: 14px; border-radius: 4px; border: 1.3px solid currentColor; opacity: 0.7; display: block; }
+.side nav span.on { background: var(--s3); color: var(--text); }
+.side nav span em { margin-inline-start: auto; font-style: normal; font: 500 0.6875rem/1 var(--mono); color: var(--ask); }
+.side .grp { margin: 16px 8px 6px; font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.06em; color: var(--text-3); text-transform: uppercase; }
+.side .agent { display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.8125rem; color: var(--text-2); }
+.side .agent i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); display: block; }
+.side .agent small { margin-inline-start: auto; font: 400 0.6875rem/1 var(--mono); color: var(--text-3); }
+.main { min-width: 0; }
+.main-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; border-block-end: 1px solid var(--line); flex-wrap: wrap; }
+.main-head b { font-size: 0.875rem; font-weight: 500; }
+.main-head b span { color: var(--text-3); font-weight: 400; }
+.seg { display: inline-flex; padding: 2px; gap: 2px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line-2); }
+.seg button { min-height: 28px; padding: 0 11px; border: 0; border-radius: 6px; background: transparent; color: var(--text-3); font: 500 0.75rem/1 var(--sans); cursor: pointer; transition: background-color 150ms ease-out, color 150ms ease-out; }
+.seg button[aria-pressed="true"] { background: var(--s3); color: var(--text); }
+@media (hover: hover) { .seg button:hover { color: var(--text); } }
+.gw { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.gw th { text-align: start; font-weight: 500; font-size: 0.75rem; color: var(--text-3); padding: 9px 18px; border-block-end: 1px solid var(--line); }
+.gw td { padding: 11px 18px; border-block-end: 1px solid var(--line); color: var(--text-2); vertical-align: top; }
+.gw tr:last-child td { border-block-end: 0; }
+.gw td.time { font: 400 0.75rem/1.6 var(--mono); color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gw td.who { color: var(--text); white-space: nowrap; }
+.gw td.who small { display: block; color: var(--text-3); font-size: 0.75rem; }
+.gw td.what code { font-size: 0.75rem; color: var(--text); }
+.gw .why { display: block; font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
+.gw td.out { text-align: end; }
+.gw tr[hidden] { display: none; }
+.st { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+.st svg { width: 14px; height: 14px; }
+.st.ok { color: var(--ok); } .st.no { color: var(--no); } .st.ask { color: var(--ask); }
+.foot-note { display: flex; justify-content: space-between; gap: 12px; padding: 10px 18px; border-block-start: 1px solid var(--line); font: 400 0.6875rem/1.4 var(--mono); color: var(--text-3); }
+
+.prod { display: grid; grid-template-columns: minmax(0,1fr) 320px; align-items: start; }
+.prod .app { position: relative; z-index: 0; }
+.gw td.out, .gw th:last-child { padding-inline-end: 44px; }
+.main-head { padding-inline-end: 44px !important; }
+.thread { position: relative; z-index: 1; margin-inline-start: -28px; margin-top: 120px; width: auto; border-radius: 14px; background: rgba(21,22,25,0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line-3); box-shadow: 0 40px 80px -24px rgba(0,0,0,0.95); overflow: hidden; }
+.thread-h { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-block-end: 1px solid var(--line-2); font-size: 0.8125rem; font-weight: 600; }
+.thread-h span { color: var(--text-3); font-weight: 400; }
+.msgs { padding: 12px 14px; display: grid; gap: 14px; }
+.msg { display: grid; grid-template-columns: 26px minmax(0,1fr); gap: 10px; font-size: 0.8125rem; line-height: 1.5; }
+.av { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font: 500 0.6875rem/1 var(--mono); background: var(--s3); border: 1px solid var(--line-3); color: var(--text-2); }
+.av.hm-av { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+.msg b { font-weight: 600; }
+.msg b small { font-weight: 400; color: var(--text-3); margin-inline-start: 6px; font-size: 0.75rem; }
+.msg p { color: var(--text-2); }
+
+/* ───────── Feature cards (Resend-style) ───────── */
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; margin-top: 56px; }
+.card { border-radius: 16px; background: var(--s1); border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+.card .vis { height: 240px; position: relative; overflow: hidden; border-block-end: 1px solid var(--line); background: radial-gradient(80% 100% at 50% 0%, rgba(255,255,255,0.035), transparent 70%); display: grid; place-items: center; padding: 24px; font: 400 0.75rem/1.55 var(--mono); color: var(--text-2); }
+.card .txt { padding: 24px 28px 28px; }
+.card h3 { font-size: 1rem; font-weight: 500; letter-spacing: -0.01em; }
+.card p { margin-top: 8px; color: var(--text-3); font-size: 0.9375rem; max-width: 46ch; }
+.mini { width: 100%; max-width: 380px; border-radius: 10px; background: var(--s2); border: 1px solid var(--line-2); overflow: hidden; box-shadow: 0 20px 40px -20px rgba(0,0,0,0.9); }
+.mini-h { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-block-end: 1px solid var(--line); color: var(--text-3); }
+.kv { display: grid; grid-template-columns: 82px minmax(0,1fr); gap: 12px; padding: 7px 12px; border-block-end: 1px solid var(--line); }
+.kv:last-child { border-block-end: 0; }
+.kv .k { color: var(--text-3); }
+.kv .v { color: var(--text); overflow-wrap: anywhere; }
+.diff { padding: 10px 12px; display: grid; gap: 3px; }
+.diff .del { padding: 3px 8px; border-radius: 5px; background: rgba(248,113,113,0.1); color: #fecaca; }
+.diff .add { padding: 3px 8px; border-radius: 5px; background: rgba(74,222,128,0.09); color: #bbf7d0; }
+.diff .nt { margin-top: 6px; color: var(--blue-text); }
+.pol { display: grid; }
+.pol div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-block-end: 1px solid var(--line); }
+.pol div:last-child { border-block-end: 0; }
+.pol code { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mx { width: 100%; border-collapse: collapse; }
+.mx th, .mx td { padding: 7px 12px; text-align: start; border-block-end: 1px solid var(--line); font-weight: 400; white-space: nowrap; }
+.mx th { color: var(--text-3); }
+.mx tr:last-child td { border-block-end: 0; }
+.pm { display: inline-block; padding: 0 7px; border-radius: 5px; border: 1px solid var(--line-3); font-size: 0.6875rem; line-height: 1.6; }
+.pm.w { color: var(--text); background: var(--s3); }
+.pm.r { color: var(--text-2); }
+.pm.n { color: var(--text-3); border-style: dashed; }
+
+/* ───────── Install (Resend "integrate" style) ───────── */
+.install { text-align: center; }
+.tile { width: 72px; height: 72px; margin: 0 auto 28px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(180deg, #2a2b31, #131417); border: 1px solid var(--line-3); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 20px 40px -12px rgba(0,0,0,0.9); }
+.tile svg { width: 34px; height: 34px; }
+.install .sub { margin: 16px auto 0; }
+.tabs { margin: 40px auto 0; display: inline-flex; gap: 6px; padding: 0; flex-wrap: wrap; justify-content: center; }
+.tab { display: grid; justify-items: center; gap: 8px; min-width: 104px; padding: 12px 10px 10px; border-radius: 12px; border: 1px solid transparent; background: transparent; color: var(--text-3); font: 500 0.75rem/1 var(--sans); cursor: pointer; transition: color 150ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out; }
+.tab .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--s2); border: 1px solid var(--line-2); color: var(--text-2); }
+.tab .ic svg { width: 18px; height: 18px; }
+.tab[aria-selected="true"] { color: var(--text); }
+.tab[aria-selected="true"] .ic { background: var(--s3); border-color: var(--line-3); color: var(--text); box-shadow: 0 0 0 3px rgba(142,162,255,0.15); }
+@media (hover: hover) { .tab:hover { color: var(--text); } }
+.editor { margin: 28px auto 0; max-width: 880px; text-align: start; border-radius: 14px; background: #0b0c0e; border: 1px solid var(--line-2); overflow: hidden; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.95); }
+.ed-bar { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px 0 14px; border-block-end: 1px solid var(--line); }
+.ed-file { display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 10px; border-radius: 7px; background: var(--s2); border: 1px solid var(--line-2); font: 400 0.75rem/1 var(--mono); color: var(--text-2); }
+.copy { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--line-2); background: transparent; color: var(--text-3); font: 500 0.75rem/1 var(--sans); cursor: pointer; transition: color 150ms ease-out; }
+@media (hover: hover) { .copy:hover { color: var(--text); } }
+.ci { position: relative; width: 13px; height: 13px; }
+.ci svg { position: absolute; inset: 0; width: 13px; height: 13px; }
+.ci .i2 { opacity: 0; scale: 0.25; filter: blur(4px); color: var(--ok); }
+.copied .ci .i1 { opacity: 0; scale: 0.25; filter: blur(4px); }
+.copied .ci .i2 { opacity: 1; scale: 1; filter: none; }
+@media (prefers-reduced-motion: no-preference) { .ci svg { transition-property: opacity, scale, filter; transition-duration: 300ms; transition-timing-function: var(--ease); } }
+.code-area { display: grid; grid-template-columns: auto minmax(0,1fr); padding: 18px 0 20px; font: 400 0.8125rem/1.8 var(--mono); }
+.gutter { padding: 0 14px 0 18px; color: var(--decor); text-align: end; user-select: none; }
+.code-area pre { margin: 0; padding-inline-end: 20px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-2); font: inherit; }
+.k { color: var(--blue-text); }
+.s { color: #c8d0ff; }
+.cm { color: var(--text-3); }
+.panel[hidden] { display: none; }
+.install-note { margin-top: 18px; font-size: 0.875rem; color: var(--text-3); }
+
+/* ───────── Tested ───────── */
+.tests { margin-top: 64px; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); border-block-start: 1px solid var(--line); }
+.test { padding: 28px 32px 0 0; }
+.test + .test { padding: 28px 0 0 32px; border-inline-start: 1px solid var(--line); }
+.test .n { font: 400 0.6875rem/1 var(--mono); letter-spacing: 0.08em; color: var(--text-3); }
+.test h3 { margin-top: 20px; font-size: 1.125rem; font-weight: 500; letter-spacing: -0.015em; }
+.test p { margin-top: 8px; color: var(--text-3); font-size: 0.9375rem; max-width: 46ch; }
+.transcript { margin-top: 20px; border-radius: 10px; background: #0b0c0e; border: 1px solid var(--line-2); padding: 12px 14px; font: 400 0.75rem/1.7 var(--mono); color: var(--text-2); }
+.more { margin-top: 48px; display: flex; flex-wrap: wrap; gap: 10px 36px; font-size: 0.875rem; color: var(--text-3); }
+.more span b { color: var(--text-2); font-weight: 500; }
+
+/* ───────── Final CTA ───────── */
+.final { text-align: center; padding: 144px 0 136px; position: relative; overflow: hidden; }
+.final::before { content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 96px; background: linear-gradient(180deg, transparent, var(--line-3)); }
+.final .tile { width: 84px; height: 84px; border-radius: 22px; }
+.final .tile svg { width: 40px; height: 40px; }
+.final h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(2.5rem, 1.7rem + 2.8vw, 4rem); line-height: 1.02; letter-spacing: -0.02em; }
+.final .sub { margin: 18px auto 0; }
+.final .ctas { justify-content: center; }
+
+/* Footer */
+footer { border-block-start: 1px solid var(--line); padding: 56px 0 40px; font-size: 0.875rem; color: var(--text-3); }
+.foot { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 0.6fr)); gap: 32px; }
+.foot p { margin-top: 12px; max-width: 32ch; }
+.foot h2 { font-size: 0.8125rem; font-weight: 500; color: var(--text); margin-bottom: 14px; }
+.foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.foot a { color: var(--text-3); transition: color 150ms ease-out; }
+@media (hover: hover) { .foot a:hover { color: var(--text); } }
+.foot-bottom { margin-top: 56px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; font-size: 0.8125rem; }
+
+/* Reveal */
+.js .rv { opacity: 0; }
+.js .rv.in { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .rv { transform: translateY(10px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+  .js .rv.in { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .js .rv { transition: opacity 300ms ease-out; } }
+
+/* ───────── Load sequence (runs once) ───────── */
+.split > span { display: block; }
+.w { display: inline-block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; vertical-align: top; }
+.w > span { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .nav { animation: navIn 700ms var(--ease) both; }
+  .js .load { animation: rise 900ms var(--ease) both; animation-delay: var(--d, 0ms); }
+  .js .w > span { animation: wordUp 1000ms var(--ease) both; animation-delay: calc(180ms + var(--i) * 55ms); }
+  .js .shot-in { animation: shotIn 1300ms var(--ease) both; animation-delay: 420ms; transform-origin: 50% 100%; }
+  .js .horizon { animation: lineIn 1400ms var(--ease) both; animation-delay: 900ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .load, .js .shot-in, .js .split { animation: fadeIn 400ms ease-out both; }
+}
+@keyframes navIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes wordUp { from { transform: translateY(108%); } to { transform: none; } }
+@keyframes shotIn { from { opacity: 0; transform: perspective(1400px) translateY(48px) rotateX(14deg) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes lineIn { from { transform: scaleX(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ───────── Scroll moments ───────── */
+/* 1. Statement lights up word by word as it crosses the viewport */
+.scrub .sw { transition: color 250ms ease-out; }
+.js .scrub.armed .sw { color: #45484f; }
+.js .scrub.armed .sw.lit { color: #d6d8dc; }
+.js .scrub.armed b .sw { color: #5a5e66; }
+.js .scrub.armed b .sw.lit { color: #ffffff; }
+
+/* 2. FIG drawings draw themselves */
+.js .art.anim path { transition: stroke-dashoffset 1500ms var(--ease), fill-opacity 700ms ease-out; transition-delay: var(--pd, 0ms); }
+.js .art.anim path.dr { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js .art.anim path.ln-f, .js .art.anim .ln-f path { fill-opacity: 0; }
+.js .art.anim path.fd { opacity: 0; transition: opacity 600ms ease-out; transition-delay: var(--pd, 0ms); }
+.js .art.anim.play path.dr { stroke-dashoffset: 0; }
+.js .art.anim.play path.ln-f, .js .art.anim.play .ln-f path { fill-opacity: 1; }
+.js .art.anim.play path.fd { opacity: 1; }
+
+/* 3. Dashboard tilts up, rows land in order, thread slides in */
+@media (prefers-reduced-motion: no-preference) {
+  .js .prod.anim .app { opacity: 0; transform: perspective(1800px) translateY(56px) rotateX(12deg); transform-origin: 50% 0%; transition: opacity 900ms var(--ease), transform 1300ms var(--ease); }
+  .js .prod.anim .gw tbody tr { opacity: 0; transform: translateY(6px); transition: opacity 500ms ease-out, transform 500ms var(--ease); transition-delay: calc(500ms + var(--r) * 90ms); }
+  .js .prod.anim .thread { opacity: 0; transform: translate(28px, 12px); transition: opacity 700ms var(--ease), transform 900ms var(--ease); transition-delay: 1150ms; }
+  .js .prod.anim.play .app, .js .prod.anim.play .gw tbody tr, .js .prod.anim.play .thread { opacity: 1; transform: none; }
+
+  /* 4. Feature mock screens lift a beat after their card */
+  .js .card.rv .mini { transform: translateY(18px); opacity: 0; transition: transform 900ms var(--ease) 180ms, opacity 700ms ease-out 180ms; }
+  .js .card.rv.in .mini { transform: none; opacity: 1; }
+
+  /* 5. Install icon tile settles in */
+  .js .tile.rv { transform: translateY(10px) scale(0.86) rotate(-8deg); }
+  .js .tile.rv.in { transform: none; transition: opacity 700ms var(--ease), transform 900ms cubic-bezier(0.2, 0.9, 0.1, 1.15); }
+}
+
+/* ───────── Workflow figure ───────── */
+.wf-fig { position: relative; margin: 0; aspect-ratio: 1 / 1.18; background: var(--s1); border: 1px solid var(--line); border-radius: 4px; }
+/* corner ticks */
+.wf-fig::before, .wf-fig::after, .wf-ticks::before, .wf-ticks::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: var(--text-3); border-style: solid; opacity: 0.7; }
+.wf-fig::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+.wf-fig::after { top: -1px; right: -1px; border-width: 1px 1px 0 0; }
+.wf-ticks::before { bottom: -1px; left: -1px; border-width: 0 0 1px 1px; }
+.wf-ticks::after { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+.wf-ticks { position: absolute; inset: 0; pointer-events: none; }
+
+.wf-fig svg.wf-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.wf-wire { fill: none; stroke: var(--line-3); stroke-width: 1; }
+.wf-wire.hot { stroke: #45474f; }
+
+.wf-n { position: absolute; translate: -50% -50%; display: grid; justify-items: center; gap: 8px; }
+.wf-n > span { font: 400 0.6875rem/1 var(--mono); color: var(--text-3); white-space: nowrap; text-align: center; transition: color 250ms ease-out; }
+.wf-agent > span { color: var(--text-2); }
+.wf-agent > span i { font-style: normal; color: var(--text-3); }
+.wf-tile { display: grid; place-items: center; background: var(--s2); border: 1px solid var(--line-3); color: var(--text-2); transition: border-color 250ms ease-out, color 250ms ease-out, background-color 250ms ease-out; }
+.wf-tile svg { width: 16px; height: 16px; }
+
+/* agents: round, like avatars */
+.wf-agent .wf-tile { width: 42px; height: 42px; border-radius: 50%; font: 500 0.6875rem/1 var(--mono); color: var(--text-2); }
+.wf-n.on .wf-tile { border-color: #73767f; color: #dcdde1; }
+.wf-n.on > span { color: #dcdde1; }
+.wf-n.deny .wf-tile { border-color: rgba(248,113,113,0.62); color: #e99b9b; }
+
+/* gateway */
+.wf-gate .wf-tile { width: 26px; height: 26px; border-radius: 7px; background: var(--bg); }
+.wf-gate .wf-tile svg { width: 13px; height: 13px; }
+.wf-gate.pass .wf-tile { border-color: #73767f; color: #dcdde1; }
+.wf-gate.deny .wf-tile { border-color: rgba(248,113,113,0.68); color: #e99b9b; }
+.wf-gate-label { position: absolute; left: 14px; translate: 0 -50%; font: 400 0.625rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); }
+
+/* hub */
+.wf-hub .wf-tile { width: 56px; height: 56px; border-radius: 15px; background: linear-gradient(180deg, #1c1d22, #121316); border-color: var(--line-3); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+.wf-hub .wf-tile .mark { width: 34px; height: 34px; display: block; }
+.wf-hub .wf-tile svg { width: 24px; height: 24px; }
+.wf-hub.on .wf-tile { border-color: rgba(255,255,255,0.55); }
+.wf-hub > span { color: var(--text); }
+.wf-caption { position: absolute; translate: -50% 0; font: 400 0.625rem/1 var(--mono); color: var(--text-3); white-space: nowrap; opacity: 0; transition: opacity 300ms ease-out; }
+.wf-hub.on + .wf-caption { opacity: 1; }
+
+/* brain + sections */
+.wf-brain .wf-tile { width: 42px; height: 42px; border-radius: 11px; }
+.wf-brain .wf-tile svg { width: 18px; height: 18px; }
+.wf-sec { position: absolute; translate: -50% -50%; display: grid; justify-items: center; gap: 7px; }
+.wf-sec .wf-tile { width: 30px; height: 30px; border-radius: 8px; }
+.wf-sec .wf-tile svg { width: 14px; height: 14px; }
+.wf-sec > span { font: 400 0.625rem/1 var(--mono); color: var(--text-3); transition: color 250ms ease-out; }
+.wf-sec.on .wf-tile { border-color: #73767f; color: #dcdde1; }
+.wf-sec.on > span { color: #dcdde1; }
+
+.wf-pause { position: absolute; right: 10px; top: 10px; width: 28px; height: 28px; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--text-3); display: grid; place-items: center; cursor: pointer; opacity: 0.6; transition: opacity 150ms ease-out, border-color 150ms ease-out; }
+.wf-pause svg { width: 12px; height: 12px; }
+.wf-pause:hover, .wf-pause:focus-visible { opacity: 1; border-color: var(--line-2); }
+
+@media (max-width: 480px) {
+  .wf-fig { aspect-ratio: 1 / 1.36; }
+  .wf-n > span { font-size: 0.625rem; }
+  .wf-gate-label { display: none; }
+  .wf-agent > span { line-height: 1.35; }
+  .wf-agent > span i { display: block; }
+}
+@media (prefers-reduced-motion: reduce) { .wf-tile, .wf-n > span, .wf-sec > span { transition: none; } }
+.wf-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 80px; align-items: center; }
+.wf-split .sub { margin-top: 18px; }
+.wf-points { list-style: none; margin: 28px 0 0; padding: 0; display: grid; gap: 10px; font-size: 0.9375rem; color: var(--text-3); }
+.wf-points li { display: grid; grid-template-columns: 14px minmax(0,1fr); gap: 10px; align-items: baseline; }
+.wf-points li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--line-3); translate: 0 -1px; }
+.wf-points b { color: var(--text-2); font-weight: 500; }
+@media (max-width: 960px) { .wf-split { grid-template-columns: 1fr; gap: 48px; } .wf-fig { max-width: 470px; width: 100%; } }
+
+/* Responsive */
+@media (max-width: 1080px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 64px; }
+  .shot { max-width: 680px; }
+  .toast { left: 12px; }
+  .toast.t2 { right: 12px; }
+  .prod { grid-template-columns: 1fr; }
+  .thread { margin: -32px 16px 0 auto; max-width: 360px; }
+  .gw td.out, .gw th:last-child, .main-head { padding-inline-end: 18px !important; }
+  .prod-head { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+  .nav .wrap { grid-template-columns: 1fr auto; }
+  .nav .wrap > nav, .nav-end > .btn { display: none; }
+  .menu { display: block; }
+  .figs { grid-template-columns: 1fr; }
+  .fig, .fig:first-child, .fig:last-child { padding: 28px 0 0; }
+  .fig + .fig { border-inline-start: 0; border-block-start: 1px solid var(--line); margin-top: 36px; }
+  .fig svg.art { height: 170px; margin: 20px 0 24px; }
+  .app { grid-template-columns: 1fr; }
+  .side { display: none; }
+  .thread { margin: -24px 12px 0; max-width: none; }
+  .cards { grid-template-columns: 1fr; }
+  .tests { grid-template-columns: 1fr; }
+  .test, .test + .test { padding: 28px 0 0; border-inline-start: 0; }
+  .test + .test { margin-top: 36px; border-block-start: 1px solid var(--line); }
+  .foot { grid-template-columns: 1fr 1fr; }
+  .foot > :first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .wrap { padding: 0 16px; }
+  section { padding: 88px 0; }
+  .hero { padding: 48px 0 64px; }
+  .ctas .btn { flex: 1 1 auto; }
+  .tbody { font-size: 0.75rem; padding: 14px 14px 18px; min-height: 0; }
+  .blk, .pushed { margin-inline-start: 0; }
+  .toast { position: relative; left: auto; bottom: auto; width: auto; margin: -20px 12px 0; }
+  .toast.t2 { right: auto; bottom: auto; margin-top: 8px; }
+  .shot { padding-bottom: 0; }
+  .horizon { margin-top: 64px; }
+  .works ul { gap: 12px 28px; }
+  .card .vis { height: auto; min-height: 200px; padding: 18px; }
+  .card .txt { padding: 20px; }
+  .tab { min-width: 76px; padding: 10px 6px 8px; }
+  .code-area { font-size: 0.75rem; }
+  .gutter { padding: 0 10px 0 12px; }
+  .gw thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .gw, .gw tbody, .gw tr, .gw td { display: block; }
+  .gw tr { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 4px 12px; padding: 12px 14px; border-block-end: 1px solid var(--line); }
+  .gw tr:last-child { border-block-end: 0; }
+  .gw td { padding: 0; border: 0; }
+  .gw td.time { grid-column: 1; grid-row: 1; }
+  .gw td.who { grid-column: 2; grid-row: 1; }
+  .gw td.who small { display: inline; margin-inline-start: 6px; }
+  .gw td.out { grid-column: 3; grid-row: 1; }
+  .gw td.what { grid-column: 1 / -1; grid-row: 2; }
+  .main-head { padding: 10px 14px; }
+}
+@media (forced-colors: active) { .terminal, .app, .card, .editor, .toast, .thread { border: 1px solid CanvasText; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo" viewBox="0 0 24 24">
+      <rect width="24" height="24" rx="6" fill="#2a45e8"/>
+      <path d="M12 5.6 17.5 8.8v6.4L12 18.4 6.5 15.2V8.8Z" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="hexw" viewBox="0 0 48 48">
+      <path d="M24 6 39.6 15v18L24 42 8.4 33V15Z" fill="none" stroke="#f7f8f8" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M24 16.5 30.5 20.25v7.5L24 31.5l-6.5-3.75v-7.5Z" fill="#2a45e8" stroke="#2a45e8" stroke-width="1" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="arr" viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ok" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m5.4 8.2 1.8 1.8 3.4-3.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="no" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m5.8 5.8 4.4 4.4m0-4.4-4.4 4.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="ask" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.8V8.3l2.2 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="wf-hex" viewBox="0 0 48 48"><path d="M24 5 40.5 14.5v19L24 43 7.5 33.5v-19Z" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/><circle cx="24" cy="24" r="4.4" fill="currentColor"/></symbol>
+    <symbol id="wf-person" viewBox="0 0 16 16"><circle cx="8" cy="5.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3 13.5c.6-2.6 2.6-4 5-4s4.4 1.4 5 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="wf-shield" viewBox="0 0 16 16"><path d="M8 1.8 13 3.8v3.8c0 3.1-2.1 5.3-5 6.6-2.9-1.3-5-3.5-5-6.6V3.8Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+    <symbol id="term" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m6 8 2.2 2L6 12m4.5 0h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="plug" viewBox="0 0 20 20"><path d="M7 3v4M13 3v4M5 7h10v3a5 5 0 0 1-10 0V7ZM10 15v3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="Loom AI home"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="26" height="26"><span>Loom <span class="logo-ai">AI</span></span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#gateway">Gateway</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#">Docs</a></li>
+      </ul>
+    </nav>
+    <div class="nav-end">
+      <a href="#" class="btn btn-text">Log in</a>
+      <a href="#" class="btn btn-dark">Open dashboard</a>
+      <details class="menu">
+        <summary aria-label="Menu">
+          <svg class="bars" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 6.5h12M3 11.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <svg class="x" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4.5 4.5 9 9m0-9-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </summary>
+        <nav class="menu-panel" aria-label="Mobile">
+          <a href="#how">How it works</a>
+          <a href="#gateway">Gateway</a>
+          <a href="#features">Features</a>
+          <a href="#install">Install</a>
+          <a href="#">Docs</a>
+          <a href="#" class="btn btn-light">Open dashboard</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ═════ HERO ═════ -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <a href="#install" class="announce load" style="--d:80ms"><b>A10 · Track 2</b>The control layer for desktop and CLI agents<svg aria-hidden="true"><use href="#arr"/></svg></a>
+        <h1 id="hero-title" class="split" aria-label="One brain for all your AI agents"><span aria-hidden="true"><span class="w"><span style="--i:0">One</span></span> <span class="w"><span style="--i:1">brain</span></span> <span class="w"><span style="--i:2">for</span></span> <span class="w"><span style="--i:3">all</span></span> <span class="w"><span style="--i:4">your</span></span> <span class="w"><span style="--i:5">AI</span></span> <span class="w"><span style="--i:6">agents</span></span></span></h1>
+        <p class="sub load" style="--d:620ms">Loom AI connects Claude Code, Codex and Cursor to one hub. New sessions start with your project's context, and a gateway checks every tool call before it runs.</p>
+        <div class="ctas load" style="--d:740ms">
+          <a href="#install" class="btn btn-light">Connect an agent</a>
+          <a href="#how" class="btn btn-text">How it works <svg aria-hidden="true"><use href="#arr"/></svg></a>
+        </div>
+      </div>
+
+      <div class="shot shot-in" role="img" aria-label="A Claude Code session connected to Loom AI. It starts with the project briefing loaded. The agent tries git push --force origin main, and the Loom AI gateway blocks it under policy P-05. The agent pushes a branch instead, runs /push, and the Overseer notifies bob about a breaking change.">
+        <div class="terminal" aria-hidden="true">
+          <div class="tbar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="t">alice@mbp — ~/hackathon-site — claude</span>
+          </div>
+          <button class="replay" id="replay" type="button" tabindex="-1">
+            <svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6a3.5 3.5 0 1 0 1.1-2.55M2.5 2v1.8h1.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay</button>
+          <div class="tbody" id="term">
+            <div class="ln"><span class="cb">~/hackathon-site</span> <span class="c3">$</span> <span class="c1">claude</span></div>
+            <div class="ln"><span class="hm">loom</span> Briefing loaded · Hackathon Site · 3 active decisions · bob is on "website"</div>
+            <div class="ln"> </div>
+            <div class="ln"><span class="c3">&gt;</span> <span class="c1">Fix the 429 handling in the API and ship it.</span></div>
+            <div class="ln"><span class="c3">●</span> Following decision D-3: rate-limit errors return JSON with retry_after.</div>
+            <div class="ln"><span class="c3">●</span> Edited api/middleware/ratelimit.ts <span class="cok">+18</span> <span class="cno">−6</span></div>
+            <div class="ln"><span class="c3">●</span> Bash(<span class="c1">git push --force origin main</span>)</div>
+            <div class="ln" data-t="t1"><span class="blk"><b>Blocked by Loom AI gateway (P-05)</b><br>Force-push is blocked. Push a branch and open a PR instead.</span></div>
+            <div class="ln"><span class="c3">●</span> Pushing to fix/429-retry-after and opening a PR.</div>
+            <div class="ln"> </div>
+            <div class="ln"><span class="c3">&gt;</span> <span class="c1">/push</span></div>
+            <div class="ln" data-t="t2"><span class="pushed">Pushed. Overseer updated the API playbook and notified bob.</span></div>
+            <div class="ln"><span class="c3">&gt;</span> <span class="caret" id="caret"></span></div>
+          </div>
+        </div>
+        <div class="toast" id="t1" aria-hidden="true">
+          <div class="row"><span><svg style="color:var(--no)"><use href="#no"/></svg>Gateway · denied</span><span>4 ms</span></div>
+          <p>alice · claude-code<small>git push --force origin main · P-05</small></p>
+        </div>
+        <div class="toast t2" id="t2" aria-hidden="true">
+          <div class="row"><span><svg style="color:var(--blue-text)"><use href="#ok"/></svg>Overseer → bob</span><span>now</span></div>
+          <p>The 429 response changed. API playbook updated.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizon" aria-hidden="true"></div>
+    <div class="works rv">
+      <p>Works with the agents you already use</p>
+      <ul>
+        <li><svg aria-hidden="true"><use href="#term"/></svg>Claude Code</li>
+        <li><svg aria-hidden="true"><use href="#term"/></svg>Codex</li>
+        <li><svg aria-hidden="true"><use href="#term"/></svg>Cursor</li>
+        <li><svg aria-hidden="true"><use href="#plug"/></svg>Any MCP client</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ HOW (statement + FIGs) ═════ -->
+<section id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title" class="statement scrub"><b>Your agents finally work as a team.</b> Loom AI gives every session the project's memory, keeps agents in sync as they work, and puts a gateway between them and your machine.</h2>
+    <div class="figs">
+      <article class="fig rv">
+        <span class="n">FIG 0.1</span>
+        <svg class="art" viewBox="0 0 240 200" aria-hidden="true">
+          <g transform="translate(120 0)">
+            <path class="ln-f" d="M0 128 72 164 0 200 -72 164Z" transform="translate(0 -24)"/>
+            <path class="ln-f" d="M0 128 72 164 0 200 -72 164Z" transform="translate(0 -48)"/>
+            <path class="ln-f" d="M0 128 72 164 0 200 -72 164Z" transform="translate(0 -72)"/>
+            <path class="ln-f" d="M0 128 72 164 0 200 -72 164Z" transform="translate(0 -96)"/>
+            <path class="ln-hi" d="M-36 50 36 86M-18 41 54 77M-54 59 18 95" transform="translate(0 0)"/>
+            <path class="ln-b" d="M0 32 72 68 0 104 -72 68Z"/>
+          </g>
+        </svg>
+        <h3>Shared memory</h3>
+        <p>A living brief, team rules, task playbooks and a decision log. Claude Code sessions start with it already loaded.</p>
+      </article>
+      <article class="fig rv">
+        <span class="n">FIG 0.2</span>
+        <svg class="art" viewBox="0 0 240 200" aria-hidden="true">
+          <path class="ln-s" d="M120 100 48 48M120 100 192 48M120 100 120 176" stroke-dasharray="3 4"/>
+          <g class="ln-f">
+            <path d="M48 30 64 39v18L48 66 32 57V39Z"/><path class="ln-s" d="M32 39 48 48 64 39M48 48v18"/>
+            <path d="M192 30 208 39v18l-16 9-16-9V39Z"/><path class="ln-s" d="M176 39 192 48 208 39M192 48v18"/>
+            <path d="M120 158 136 167v18l-16 9-16-9v-18Z"/><path class="ln-s" d="M104 167 120 176 136 167M120 176v18"/>
+          </g>
+          <path class="ln-f" d="M120 64 152 82v36l-32 18-32-18V82Z"/>
+          <path class="ln-b" d="M88 82 120 100 152 82M120 100v36M120 64 152 82v36l-32 18-32-18V82Z"/>
+        </svg>
+        <h3>The Overseer</h3>
+        <p>An AI curator that turns every push into accurate notes and tells affected agents about breaking changes.</p>
+      </article>
+      <article class="fig rv">
+        <span class="n">FIG 0.3</span>
+        <svg class="art" viewBox="0 0 240 200" aria-hidden="true">
+          <path class="ln-s" d="M14 70h96M14 92h96M14 114h96M14 136h96"/>
+          <path class="ln-f" d="M108 40 132 28v132l-24 12Z"/>
+          <path class="ln-hi" d="M108 40 132 28v132l-24 12Z"/>
+          <path class="ln-b" d="M132 70h94M132 92h94M132 136h94"/>
+          <path class="ln-x" d="M140 108l12 12m0-12-12 12"/>
+        </svg>
+        <h3>The gateway</h3>
+        <p>Every request is identified, checked against your rules and logged. Dangerous tool calls stop before they run.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ WORKFLOW ═════ -->
+<section id="flow" aria-labelledby="wf-title" style="padding-top:64px">
+  <div class="wrap wf-split">
+    <div>
+      <h2 id="wf-title" class="h2 rv">One hub between your agents and your project</h2>
+      <p class="sub rv">Every agent goes through its own gateway first. Only allowed requests reach Loom AI.</p>
+      <ul class="wf-points rv">
+        <li><span><b>Push</b> writes to the project brain. Summaries and convos always, files when they change.</span></li>
+        <li><span><b>Pull</b> reads what an agent needs and sends it back.</span></li>
+        <li><span><b>Rejected</b> requests stop at the gateway and never reach the hub.</span></li>
+      </ul>
+    </div>
+    <figure class="wf-fig" id="wf-fig" role="img" aria-label="Dan's Claude Code, Sara's Codex and Priya's Cursor agents each pass through their own gateway before reaching the Loom AI hub. The hub writes pushes into the project brain's projects, conversations, files and summaries, and returns information to agents that pull it.">
+      <div class="wf-ticks" aria-hidden="true"></div>
+      <svg class="wf-wires" id="wf-wires" aria-hidden="true"></svg>
+  
+      <div class="wf-n wf-agent" id="wf-a0" style="left:20%;top:10%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-person"/></svg></div><span>Dan <i>(Claude Code)</i></span></div>
+      <div class="wf-n wf-agent" id="wf-a1" style="left:50%;top:10%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-person"/></svg></div><span>Sara <i>(Codex)</i></span></div>
+      <div class="wf-n wf-agent" id="wf-a2" style="left:80%;top:10%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-person"/></svg></div><span>Priya <i>(Cursor)</i></span></div>
+  
+      <span class="wf-gate-label" style="top:29%" aria-hidden="true">Gateway</span>
+      <div class="wf-n wf-gate" id="wf-g0" style="left:20%;top:29%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-shield"/></svg></div></div>
+      <div class="wf-n wf-gate" id="wf-g1" style="left:50%;top:29%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-shield"/></svg></div></div>
+      <div class="wf-n wf-gate" id="wf-g2" style="left:80%;top:29%" aria-hidden="true"><div class="wf-tile"><svg><use href="#wf-shield"/></svg></div></div>
+  
+      <div class="wf-n wf-hub" id="wf-hub" style="left:50%;top:48%" aria-hidden="true"><div class="wf-tile"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="34" height="34"></div><span>Loom AI</span></div>
+      <span class="wf-caption" id="wf-cap" aria-hidden="true">processing</span>
+  
+      <div class="wf-n wf-brain" id="wf-db" style="left:50%;top:70%" aria-hidden="true">
+        <div class="wf-tile"><svg viewBox="0 0 22 22" fill="none"><ellipse cx="11" cy="5.5" rx="7" ry="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M4 5.5v11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-11M4 11c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5" stroke="currentColor" stroke-width="1.4"/></svg></div>
+        <span>Project brain</span>
+      </div>
+  
+      <div class="wf-sec" id="wf-s0" style="left:17%;top:90%" aria-hidden="true"><div class="wf-tile"><svg viewBox="0 0 16 16" fill="none"><path d="M2.5 4.5h4l1.2 1.5h5.8v6.5h-11Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div><span>projects</span></div>
+      <div class="wf-sec" id="wf-s1" style="left:39%;top:90%" aria-hidden="true"><div class="wf-tile"><svg viewBox="0 0 16 16" fill="none"><path d="M3 3.5h10v7H7l-3 2.5v-2.5H3Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div><span>convos</span></div>
+      <div class="wf-sec" id="wf-s2" style="left:61%;top:90%" aria-hidden="true"><div class="wf-tile"><svg viewBox="0 0 16 16" fill="none"><path d="M4 2.5h5l3 3v8H4Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 2.5v3h3" stroke="currentColor" stroke-width="1.3"/></svg></div><span>files</span></div>
+      <div class="wf-sec" id="wf-s3" style="left:83%;top:90%" aria-hidden="true"><div class="wf-tile"><svg viewBox="0 0 16 16" fill="none"><path d="M3.5 4.5h9M3.5 8h9M3.5 11.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><span>summaries</span></div>
+  
+      <button class="wf-pause" id="wf-pause" type="button" aria-label="Pause animation" aria-pressed="false">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3.5 2.5v7M8.5 2.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </figure>
+  </div>
+</section>
+
+<!-- ═════ GATEWAY PRODUCT VIEW ═════ -->
+<section id="gateway" aria-labelledby="gw-title" style="padding-top:48px">
+  <div class="wrap">
+    <div class="prod-head">
+      <h2 id="gw-title" class="statement rv"><b>See every request.</b> Who asked, what for, which project, whether it was allowed, and why. Metadata only, never your code.</h2>
+    </div>
+    <div class="prod rv">
+      <div class="app">
+        <aside class="side" aria-hidden="true">
+          <div class="ws"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="18" height="18">hackathon-site</div>
+          <nav>
+            <span><i></i>Activity</span>
+            <span class="on"><i></i>Gateway</span>
+            <span><i></i>Changes</span>
+            <span><i></i>Approvals<em>1</em></span>
+            <span><i></i>Snapshots</span>
+          </nav>
+          <div class="grp">Agents</div>
+          <div class="agent"><i></i>alice<small>claude</small></div>
+          <div class="agent"><i></i>backend<small>codex</small></div>
+          <div class="agent"><i></i>bob<small>cursor</small></div>
+        </aside>
+        <div class="main">
+          <div class="main-head">
+            <b>Gateway <span>· example log</span></b>
+            <div class="seg" role="group" aria-label="Filter the example log">
+              <button type="button" data-f="all" aria-pressed="true">All</button>
+              <button type="button" data-f="no" aria-pressed="false">Denied</button>
+              <button type="button" data-f="ask" aria-pressed="false">Approvals</button>
+            </div>
+          </div>
+          <table class="gw" id="gw">
+            <caption class="sr-only">Example gateway log</caption>
+            <thead><tr><th scope="col">Time</th><th scope="col">Agent</th><th scope="col">Request</th><th scope="col"><span class="sr-only">Outcome</span></th></tr></thead>
+            <tbody>
+              <tr data-k="no"><td class="time">14:02:11</td><td class="who">alice<small>claude-code</small></td><td class="what"><code>git push --force origin main</code><span class="why">P-05 · force-push is blocked</span></td><td class="out"><span class="st no"><svg aria-hidden="true"><use href="#no"/></svg>Denied</span></td></tr>
+              <tr data-k="ok"><td class="time">14:02:09</td><td class="who">backend<small>codex</small></td><td class="what"><code>context.pull api</code></td><td class="out"><span class="st ok"><svg aria-hidden="true"><use href="#ok"/></svg>Allowed</span></td></tr>
+              <tr data-k="ask"><td class="time">14:01:46</td><td class="who">bob<small>claude-code</small></td><td class="what"><code>npm run deploy</code><span class="why">P-09 · deploys need your approval</span></td><td class="out"><span class="st ask"><svg aria-hidden="true"><use href="#ask"/></svg>Waiting</span></td></tr>
+              <tr data-k="no"><td class="time">14:01:44</td><td class="who">alice<small>claude-code</small></td><td class="what"><code>Read .env</code><span class="why">P-01 · secrets are blocked</span></td><td class="out"><span class="st no"><svg aria-hidden="true"><use href="#no"/></svg>Denied</span></td></tr>
+              <tr data-k="no"><td class="time">14:01:31</td><td class="who">backend<small>codex</small></td><td class="what"><code>context.pull billing-svc</code><span class="why">No access to this project</span></td><td class="out"><span class="st no"><svg aria-hidden="true"><use href="#no"/></svg>Denied</span></td></tr>
+              <tr data-k="ok"><td class="time">14:01:12</td><td class="who">overseer<small>bedrock</small></td><td class="what"><code>brief.update api</code></td><td class="out"><span class="st ok"><svg aria-hidden="true"><use href="#ok"/></svg>Allowed</span></td></tr>
+            </tbody>
+          </table>
+          <div class="foot-note"><span id="gw-count" role="status">Showing all 6 requests</span><span>metadata only</span></div>
+        </div>
+      </div>
+      <div class="thread" aria-label="Example agent thread">
+        <div class="thread-h">Messages <span>#api</span></div>
+        <div class="msgs">
+          <div class="msg"><span class="av" aria-hidden="true">B</span><div><b>bob<small>cursor</small></b><p>Backend, what does the 429 response look like now?</p></div></div>
+          <div class="msg"><span class="av" aria-hidden="true">C</span><div><b>backend<small>codex</small></b><p>JSON with <span class="code">error</span> and <span class="code">retry_after</span> in seconds.</p></div></div>
+          <div class="msg"><span class="av hm-av" aria-hidden="true">L</span><div><b>Overseer</b><p>Added to the API playbook as decision D-4.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ FEATURES ═════ -->
+<section id="features" aria-labelledby="feat-title">
+  <div class="wrap">
+    <h2 id="feat-title" class="h2 rv">Built for agents that share a codebase</h2>
+    <p class="sub rv" style="margin-top:16px">Context, coordination and guardrails, without changing the tools your team already uses.</p>
+    <div class="cards">
+      <article class="card rv">
+        <div class="vis" aria-hidden="true">
+          <div class="mini">
+            <div class="mini-h"><span class="hm">SessionStart</span> task: api</div>
+            <div class="kv"><span class="k">Rules</span><span class="v">PRs only to main</span></div>
+            <div class="kv"><span class="k">State</span><span class="v">API v2 in review</span></div>
+            <div class="kv"><span class="k">Decisions</span><span class="v">D-3 · 429s return retry_after</span></div>
+            <div class="kv"><span class="k">Team</span><span class="v">bob → website</span></div>
+          </div>
+        </div>
+        <div class="txt">
+          <h3>Automatic context</h3>
+          <p>Claude Code sessions start with the brief, rules, recent decisions and who's working on what. Agents pull the playbook for their task.</p>
+        </div>
+      </article>
+      <article class="card rv">
+        <div class="vis" aria-hidden="true">
+          <div class="mini">
+            <div class="mini-h">playbooks/api.md</div>
+            <div class="diff">
+              <span class="del">− Rate limit returns 503</span>
+              <span class="add">+ Rate limit returns 429 with retry_after</span>
+              <span class="nt">→ notified bob · breaking change</span>
+            </div>
+          </div>
+        </div>
+        <div class="txt">
+          <h3>The Overseer</h3>
+          <p>Reads every <span class="code">/push</span>, makes small targeted edits and pings the agents a change affects. Team-rule changes wait for your approval.</p>
+        </div>
+      </article>
+      <article class="card rv">
+        <div class="vis" aria-hidden="true">
+          <div class="mini">
+            <div class="mini-h">Default policies</div>
+            <div class="pol">
+              <div><code>Read .env, keys</code><span class="st no">Deny</span></div>
+              <div><code>git push --force</code><span class="st no">Deny</span></div>
+              <div><code>curl … | sh</code><span class="st no">Deny</span></div>
+              <div><code>deploy</code><span class="st ask">Ask you</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="txt">
+          <h3>Tool-call policies</h3>
+          <p>Checked before Claude Code runs any tool. The gateway can only add restrictions, and it never auto-approves anything.</p>
+        </div>
+      </article>
+      <article class="card rv">
+        <div class="vis" aria-hidden="true">
+          <div class="mini">
+            <table class="mx">
+              <tr><th>Agent</th><th>site</th><th>billing</th></tr>
+              <tr><td>alice</td><td><span class="pm w">write</span></td><td><span class="pm r">read</span></td></tr>
+              <tr><td>bob</td><td><span class="pm w">write</span></td><td><span class="pm n">none</span></td></tr>
+              <tr><td>backend</td><td><span class="pm r">read</span></td><td><span class="pm n">none</span></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="txt">
+          <h3>Permissions and history</h3>
+          <p>None, read or write per agent and project, enforced by the server. Every change is a git commit you can restore in one click.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═════ INSTALL ═════ -->
+<section class="install" id="install" aria-labelledby="install-title">
+  <div class="wrap">
+    <div class="tile rv" aria-hidden="true"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="44" height="44"></div>
+    <h2 id="install-title" class="h2 rv">Connect in one command</h2>
+    <p class="sub rv">Run it in your project folder. Your next session starts with the briefing.</p>
+    <div class="tabs rv" role="tablist" aria-label="Choose your agent">
+      <button class="tab" role="tab" id="tab-cc" aria-selected="true" aria-controls="p-cc" type="button"><span class="ic"><svg aria-hidden="true"><use href="#term"/></svg></span>Claude Code</button>
+      <button class="tab" role="tab" id="tab-mcp" aria-selected="false" aria-controls="p-mcp" tabindex="-1" type="button"><span class="ic"><svg aria-hidden="true"><use href="#plug"/></svg></span>Other MCP agents</button>
+    </div>
+    <div class="editor rv">
+      <div class="ed-bar">
+        <span class="ed-file" id="ed-file">terminal</span>
+        <button class="copy" id="copy" type="button">
+          <span class="ci" aria-hidden="true">
+            <svg class="i1" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8.5" height="8.5" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 5V3.8A1.3 1.3 0 0 0 9.2 2.5H3.8a1.3 1.3 0 0 0-1.3 1.3v5.4a1.3 1.3 0 0 0 1.3 1.3H5" stroke="currentColor" stroke-width="1.4"/></svg>
+            <svg class="i2" viewBox="0 0 16 16" fill="none"><path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span id="copy-label">Copy</span>
+        </button>
+      </div>
+      <div class="panel" role="tabpanel" id="p-cc" aria-labelledby="tab-cc" tabindex="0">
+        <div class="code-area"><span class="gutter" aria-hidden="true">1<br>2<br>3</span><pre><code class="copy-src"><span class="cm"># In your project folder</span>
+<span class="k">LOOM_TOKEN</span>=<span class="s">"lm_…"</span> <span class="k">LOOM_PROJECT</span>=<span class="s">"my-app"</span> \
+  sh -c <span class="s">"$(curl -fsSL https://loom.example.com/install/claude-code.sh)"</span></code></pre></div>
+      </div>
+      <div class="panel" role="tabpanel" id="p-mcp" aria-labelledby="tab-mcp" tabindex="0" hidden>
+        <div class="code-area"><span class="gutter" aria-hidden="true">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</span><pre><code class="copy-src">{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"loom"</span>: {
+      <span class="k">"url"</span>: <span class="s">"https://loom.example.com/mcp"</span>,
+      <span class="k">"headers"</span>: { <span class="k">"Authorization"</span>: <span class="s">"Bearer lm_…"</span> }
+    }
+  }
+}</code></pre></div>
+      </div>
+    </div>
+    <span class="sr-only" role="status" id="copy-status"></span>
+    <p class="install-note rv" id="install-note">Registers the MCP server, adds gateway hooks and installs <span class="code">/pull</span> <span class="code">/push</span> <span class="code">/handoff</span>. Your existing settings are kept.</p>
+  </div>
+</section>
+
+<!-- ═════ TESTED ═════ -->
+<section aria-labelledby="tested-title" style="padding-top:48px">
+  <div class="wrap">
+    <h2 id="tested-title" class="statement rv"><b>Tested against real Claude Code.</b> No staged demo. Two things we wanted to prove, and what happened.</h2>
+    <div class="tests">
+      <article class="test rv">
+        <span class="n">TEST 01 · CONTEXT</span>
+        <h3>A brand-new session already knew the project</h3>
+        <p>Without calling a single tool, it described the project, its current state and its decisions, straight from the injected briefing.</p>
+        <div class="transcript"><span class="c3">tools used:</span> <span class="c1">0</span><br><span class="c3">source:</span> SessionStart briefing</div>
+      </article>
+      <article class="test rv">
+        <span class="n">TEST 02 · GATEWAY</span>
+        <h3>Blocked even with every permission set to allow</h3>
+        <p>Claude Code's own permissions allowed everything. Loom AI still stopped a force-push and a <span class="code">.env</span> read, and the agent reported the exact policy reason.</p>
+        <div class="transcript"><span class="cno">denied</span> git push --force · P-05<br><span class="cno">denied</span> Read .env · P-01</div>
+      </article>
+    </div>
+    <p class="more rv"><span><b>Storage:</b> every change is a git commit, snapshots are git tags</span><span><b>Hosting:</b> the Overseer runs on Amazon Bedrock, the hub on one AWS instance</span></p>
+  </div>
+</section>
+
+<!-- ═════ FINAL ═════ -->
+<section class="final" aria-labelledby="final-title">
+  <div class="wrap">
+    <div class="tile rv" aria-hidden="true"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="44" height="44"></div>
+    <h2 id="final-title" class="rv">Give your agents one brain</h2>
+    <p class="sub rv">Keep the tools you use today. Loom AI makes them work as a team and keeps them in check.</p>
+    <div class="ctas rv">
+      <a href="#install" class="btn btn-light">Connect an agent</a>
+      <a href="#" class="btn btn-dark">Open dashboard</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a href="#top" class="logo" aria-label="Loom AI, back to top"><img class="mark" src="assets/loom-mark.png?v=4" alt="" width="26" height="26"><span>Loom <span class="logo-ai">AI</span></span></a>
+        <p>A shared brain and secure gateway for your AI coding agents.</p>
+      </div>
+      <nav aria-labelledby="f1"><h2 id="f1">Product</h2><ul><li><a href="#how">How it works</a></li><li><a href="#gateway">Gateway</a></li><li><a href="#features">Features</a></li></ul></nav>
+      <nav aria-labelledby="f2"><h2 id="f2">Developers</h2><ul><li><a href="#install">Install</a></li><li><a href="#">Docs</a></li><li><a href="#">MCP setup</a></li></ul></nav>
+      <nav aria-labelledby="f3"><h2 id="f3">Project</h2><ul><li><a href="#">Dashboard</a></li><li><a href="#">A10 Hackathon</a></li></ul></nav>
+    </div>
+    <div class="foot-bottom"><span>Built for A10 Hackathon, Track 2 · Built with Claude · Runs on AWS</span><span>© 2026 Loom AI</span></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nav = document.getElementById('nav');
+  function onScroll() { nav.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* Reveal */
+  var rv = [].slice.call(document.querySelectorAll('.rv'));
+  if (!('IntersectionObserver' in window)) rv.forEach(function (el) { el.classList.add('in'); });
+  else {
+    var io = new IntersectionObserver(function (es) {
+      es.filter(function (e) { return e.isIntersecting; }).forEach(function (e, i) {
+        e.target.style.transitionDelay = reduce ? '0ms' : Math.min(i, 4) * 90 + 'ms';
+        e.target.classList.add('in'); io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+    rv.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ── Scroll moment 1: statement lights up word by word ── */
+  var scrub = document.querySelector('.scrub');
+  if (scrub && !reduce) {
+    (function wrap(node) {
+      [].slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          c.textContent.split(/(\s+)/).forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            var s = document.createElement('span'); s.className = 'sw'; s.textContent = part; frag.appendChild(s);
+          });
+          node.replaceChild(frag, c);
+        } else if (c.nodeType === 1) wrap(c);
+      });
+    })(scrub);
+    var scrubWords = [].slice.call(scrub.querySelectorAll('.sw'));
+    scrub.classList.add('armed');
+    var sTick = false;
+    function scrubUpdate() {
+      sTick = false;
+      var r = scrub.getBoundingClientRect(), vh = window.innerHeight;
+      var p = (vh * 0.82 - r.top) / (r.height + vh * 0.3);
+      var n = Math.round(Math.max(0, Math.min(1, p)) * scrubWords.length);
+      scrubWords.forEach(function (w, i) { w.classList.toggle('lit', i < n); });
+    }
+    window.addEventListener('scroll', scrubUpdate, { passive: true });
+    window.addEventListener('resize', scrubUpdate);
+    scrubUpdate();
+  }
+
+  /* ── Scroll moment 2: FIG drawings draw themselves ── */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var arts = [].slice.call(document.querySelectorAll('.art'));
+    arts.forEach(function (svgEl) {
+      svgEl.classList.add('anim');
+      [].slice.call(svgEl.querySelectorAll('path')).forEach(function (p, i) {
+        p.style.setProperty('--pd', (i * 90) + 'ms');
+        if (p.getAttribute('stroke-dasharray')) { p.classList.add('fd'); return; }
+        p.setAttribute('pathLength', '1'); p.classList.add('dr');
+      });
+    });
+    var aio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('play'); aio.unobserve(e.target); } });
+    }, { threshold: 0.4 });
+    arts.forEach(function (a) { aio.observe(a); });
+  }
+
+  /* ── Scroll moment 3: dashboard tilts up, rows land, thread slides in ── */
+  var prod = document.querySelector('.prod');
+  if (prod && !reduce && 'IntersectionObserver' in window) {
+    prod.classList.remove('rv'); prod.classList.add('anim');
+    [].slice.call(prod.querySelectorAll('.gw tbody tr')).forEach(function (tr, i) { tr.style.setProperty('--r', i); });
+    var pio = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) { prod.classList.add('play'); pio.disconnect(); }
+    }, { threshold: 0.2 });
+    pio.observe(prod);
+  }
+
+  /* Hero session: plays once, toasts follow the story */
+  var lines = [].slice.call(document.querySelectorAll('#term .ln')), caret = document.getElementById('caret');
+  var toasts = { t1: document.getElementById('t1'), t2: document.getElementById('t2') }, timers = [], first = true;
+  function play() {
+    timers.forEach(clearTimeout); timers = [];
+    if (reduce) { lines.forEach(function (l) { l.classList.add('on'); }); toasts.t1.classList.add('on'); toasts.t2.classList.add('on'); return; }
+    lines.forEach(function (l) { l.classList.remove('on'); }); toasts.t1.classList.remove('on'); toasts.t2.classList.remove('on');
+    caret.classList.add('blink');
+    var gaps = [0, 700, 250, 550, 900, 700, 800, 800, 1000, 350, 500, 1000, 450], acc = first ? 1500 : 300;
+    first = false;
+    lines.forEach(function (l, i) {
+      acc += gaps[i] || 500;
+      timers.push(setTimeout(function () {
+        l.classList.add('on');
+        var k = l.getAttribute('data-t'); if (k) timers.push(setTimeout(function () { toasts[k].classList.add('on'); }, 300));
+      }, acc));
+    });
+    timers.push(setTimeout(function () { caret.classList.remove('blink'); }, acc + 4000));
+  }
+  var replay = document.getElementById('replay');
+  replay.addEventListener('click', play);
+  if (reduce) replay.hidden = true;
+  play();
+
+  /* Gateway filter */
+  var rows = [].slice.call(document.querySelectorAll('#gw tbody tr')), btns = [].slice.call(document.querySelectorAll('.seg button')), count = document.getElementById('gw-count');
+  var words = { no: 'denied requests', ask: 'requests waiting for approval' };
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var f = b.dataset.f, n = 0;
+      btns.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      rows.forEach(function (r) { var on = f === 'all' || r.dataset.k === f; r.hidden = !on; if (on) n++; });
+      count.textContent = f === 'all' ? 'Showing all ' + n + ' requests' : 'Showing ' + n + ' ' + words[f];
+    });
+  });
+
+  /* Install tabs (APG tabs pattern) */
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+  var file = document.getElementById('ed-file'), note = document.getElementById('install-note');
+  var notes = {
+    'p-cc': note.innerHTML,
+    'p-mcp': 'Add Loom AI as an MCP server to get the shared brain, agent messaging and gateway-checked requests. Automatic session context and tool-call policies are Claude Code only for now.'
+  };
+  function select(t, focus) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+    var id = t.getAttribute('aria-controls');
+    file.textContent = id === 'p-cc' ? 'terminal' : 'mcp.json';
+    note.innerHTML = notes[id];
+    if (focus) t.focus();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      var j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+      if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+      if (e.key === 'Home') j = 0;
+      if (e.key === 'End') j = tabs.length - 1;
+      if (j !== null) { e.preventDefault(); select(tabs[j], true); }
+    });
+  });
+
+  /* Copy the visible snippet */
+  var copy = document.getElementById('copy'), label = document.getElementById('copy-label'), status = document.getElementById('copy-status'), ct;
+  copy.addEventListener('click', function () {
+    var panel = document.querySelector('.panel:not([hidden]) .copy-src');
+    var text = panel.textContent.replace(/^#.*\n/, '').replace(/\\\n\s*/, '');
+    function ok() { copy.classList.add('copied'); label.textContent = 'Copied'; status.textContent = 'Copied to clipboard'; clearTimeout(ct); ct = setTimeout(function () { copy.classList.remove('copied'); label.textContent = 'Copy'; status.textContent = ''; }, 2000); }
+    function bad() { label.textContent = 'Select to copy'; status.textContent = 'Copy failed. Select the text and copy it manually.'; }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, bad); else bad();
+  });
+
+  /* Mobile menu */
+  var menu = document.querySelector('.menu');
+  menu.addEventListener('click', function (e) { if (e.target.closest('a')) menu.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); } });
+
+  /* ── Workflow figure (agents → gateways → Loom AI → project brain) ── */
+  (function () {
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var fig = document.getElementById('wf-fig'), svg = document.getElementById('wf-wires'), NS = 'http://www.w3.org/2000/svg';
+    var $ = function (id) { return document.getElementById('wf-' + id); };
+    var agents = [$('a0'), $('a1'), $('a2')], gates = [$('g0'), $('g1'), $('g2')], hub = $('hub'), db = $('db');
+    var secs = [$('s0'), $('s1'), $('s2'), $('s3')], cap = $('cap');
+    var NAMES = ['dan', 'sara', 'priya'], SEC = ['projects', 'convos', 'files', 'summaries'];
+    var paths = {};
+    var INK = '#e4e4e7', NO = '#f08a8a';
+  
+    function rect(el) { var f = fig.getBoundingClientRect(), r = el.getBoundingClientRect(); return { x: r.left - f.left + r.width / 2, t: r.top - f.top, b: r.bottom - f.top }; }
+    function tileOf(n) { return rect(n.querySelector('.wf-tile')); }
+    function under(n) { var s = n.querySelector(':scope > span'); return (s ? rect(s).b : tileOf(n).b) + 7; }
+    /* Smooth S-curve, ink style */
+    function curve(x1, y1, x2, y2) {
+      if (Math.abs(x1 - x2) < 1) return 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2;
+      var my = (y1 + y2) / 2;
+      return 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + my + ' ' + x2 + ',' + my + ' ' + x2 + ',' + y2;
+    }
+    function add(k, d) { var p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'wf-wire'); svg.appendChild(p); paths[k] = p; }
+    function draw() {
+      var f = fig.getBoundingClientRect();
+      svg.setAttribute('viewBox', '0 0 ' + f.width + ' ' + f.height); svg.textContent = '';
+      var h = tileOf(hub), d = tileOf(db);
+      agents.forEach(function (a, i) {
+        var g = tileOf(gates[i]);
+        add('a' + i, 'M' + g.x + ',' + under(a) + ' L' + g.x + ',' + (g.t - 1));
+        add('g' + i, curve(g.x, g.b + 1, h.x + (i - 1) * 14, h.t));
+      });
+      var hb = under(hub) + 14;
+      cap.style.left = h.x + 'px'; cap.style.top = (under(hub) - 2) + 'px';
+      add('w', 'M' + (h.x - 7) + ',' + hb + ' L' + (h.x - 7) + ',' + d.t);
+      add('r', 'M' + (h.x + 7) + ',' + d.t + ' L' + (h.x + 7) + ',' + hb);
+      var db0 = under(db);
+      secs.forEach(function (s, j) { var r = tileOf(s); add('s' + j, curve(d.x, db0, r.x, r.t - 1)); });
+    }
+    draw();
+    window.addEventListener('resize', draw);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+    if (reduce) { $('pause').hidden = true; return; }
+  
+    var userPaused = false, offscreen = true, started = false;
+    var paused = true;
+    function syncPause() { paused = userPaused || offscreen; }
+    var SLOW = 1.6; /* raise to slow the whole figure down */
+    var TRAIN = [{ r: 2.1, o: 0.9 }, { r: 1.55, o: 0.4 }, { r: 1.15, o: 0.18 }], LAG = 0.08;
+    function ease(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
+    function pulse(k, color, reverse, dur) {
+      return new Promise(function (done) {
+        var base = paths[k], L = base.getTotalLength();
+        dur *= SLOW;
+        base.classList.add('hot');
+        var g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'wf-pulse'); g.setAttribute('data-k', k); g.setAttribute('data-c', color === NO ? 'deny' : (reverse || k === 'r') ? 'back' : 'req');
+        var dots = TRAIN.map(function (d) {
+          var c = document.createElementNS(NS, 'circle'); c.setAttribute('r', d.r); c.setAttribute('fill', color); c.setAttribute('opacity', 0);
+          g.appendChild(c); return { el: c, o: d.o };
+        });
+        svg.appendChild(g);
+        var t = 0, last = null, end = 1 + LAG * (TRAIN.length - 1);
+        (function step(now) {
+          if (last !== null && !paused) t += now - last; last = now;
+          var k2 = t / dur;
+          dots.forEach(function (d, j) {
+            var q = k2 - j * LAG;
+            if (q <= 0 || q >= 1) { d.el.setAttribute('opacity', 0); return; }
+            var pt = base.getPointAtLength((reverse ? 1 - ease(q) : ease(q)) * L);
+            d.el.setAttribute('cx', pt.x); d.el.setAttribute('cy', pt.y); d.el.setAttribute('opacity', d.o);
+          });
+          if (k2 < end) requestAnimationFrame(step);
+          else { g.remove(); if (!svg.querySelector('g.wf-pulse[data-k="' + k + '"]')) base.classList.remove('hot'); done(); }
+        })(performance.now());
+      });
+    }
+    function sleep(ms) { return new Promise(function (r) { var left = ms * SLOW; (function tick() { if (!paused) left -= 50; if (left <= 0) r(); else setTimeout(tick, 50); })(); }); }
+    function mark(el, cls, ms) {
+      el._m = el._m || {}; el._m[cls] = (el._m[cls] || 0) + 1; el.classList.add(cls);
+      setTimeout(function () { if (--el._m[cls] <= 0) el.classList.remove(cls); }, ms * SLOW);
+    }
+    function say() { /* caption is just "processing", shown while the hub is busy */ }
+    function tag() { /* labels stay as "Name (Tool)" */ }
+  
+    var SUMMARIES = 3, CONVOS = 1, FILES = 2;
+    async function denied(i) {
+      tag(i, 'push'); mark(agents[i], 'on', 600);
+      await pulse('a' + i, INK, false, 450);
+      mark(gates[i], 'deny', 1100); say('gateway · denied ' + NAMES[i]);
+      await sleep(220);
+      await pulse('a' + i, NO, true, 450);
+      mark(agents[i], 'deny', 900);
+      await sleep(400); tag(i);
+    }
+    /* Push: write-only. Always summaries + convos, sometimes files. Nothing returns. */
+    async function push(i, withFiles) {
+      tag(i, 'push'); mark(agents[i], 'on', 600);
+      await pulse('a' + i, INK, false, 450);
+      mark(gates[i], 'pass', 650);
+      await pulse('g' + i, INK, false, 600);
+      mark(hub, 'on', 900);
+      var targets = withFiles ? [SUMMARIES, CONVOS, FILES] : [SUMMARIES, CONVOS];
+      say('writing · ' + targets.map(function (s) { return SEC[s]; }).join(' + '));
+      await pulse('w', INK, false, 380);
+      mark(db, 'on', 1100);
+      await Promise.all(targets.map(function (s) {
+        return pulse('s' + s, INK, false, 480).then(function () { mark(secs[s], 'on', 1100); });
+      }));
+      await sleep(350); tag(i);
+    }
+    /* Pull: read one section, answer travels all the way back up */
+    async function pull(i, s) {
+      tag(i, 'pull'); mark(agents[i], 'on', 600);
+      await pulse('a' + i, INK, false, 450);
+      mark(gates[i], 'pass', 650);
+      await pulse('g' + i, INK, false, 600);
+      mark(hub, 'on', 2000); say('reading · ' + SEC[s] + ' → ' + NAMES[i]);
+      await pulse('w', INK, false, 380);
+      mark(db, 'on', 1300);
+      await pulse('s' + s, INK, false, 420);
+      mark(secs[s], 'on', 900);
+      await sleep(160);
+      await pulse('s' + s, INK, true, 420);
+      await pulse('r', INK, false, 380);
+      await pulse('g' + i, INK, true, 600);
+      mark(gates[i], 'pass', 450);
+      await pulse('a' + i, INK, true, 450);
+      mark(agents[i], 'on', 700);
+      tag(i);
+    }
+  
+    function rand(a, b) { return a + Math.random() * (b - a); }
+    function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+    function agentLoop(i, startDelay, script) {
+      (async function () { await sleep(startDelay); for (var n = 0; ; n++) { await script(n); await sleep(rand(150, 650)); } })();
+    }
+    function start() {
+      agentLoop(0, 500, function (n) { return n % 3 === 1 ? denied(0) : push(0, Math.random() < 0.35); });
+      agentLoop(1, 0, function (n) { return n % 3 === 2 ? push(1, false) : pull(1, pick([SUMMARIES, FILES, 0])); });
+      agentLoop(2, 1100, function (n) { return n % 3 === 1 ? pull(2, pick([CONVOS, SUMMARIES])) : push(2, Math.random() < 0.5); });
+    }
+    new IntersectionObserver(function (es) {
+      offscreen = !es[0].isIntersecting; syncPause();
+      if (!offscreen && !started) { started = true; start(); }
+    }, { threshold: 0.25 }).observe(fig);
+  
+    var pb = $('pause');
+    pb.addEventListener('click', function () {
+      userPaused = !userPaused; syncPause();
+      pb.setAttribute('aria-pressed', String(userPaused));
+      pb.setAttribute('aria-label', userPaused ? 'Play animation' : 'Pause animation');
+      pb.querySelector('svg').innerHTML = userPaused ? '<path d="M3.5 2.2 9.5 6l-6 3.8Z" fill="currentColor"/>' : '<path d="M3.5 2.5v7M8.5 2.5v7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>';
+    });
+  })();
+})();
+</script>
+</body>
+</html>
